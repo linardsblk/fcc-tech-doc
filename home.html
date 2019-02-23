@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<LINK REL=StyleSheet HREF="style.css" TYPE="text/css" MEDIA=screen>
+	<title>Tour of.NET</title> 
+</head>
+
+<body>
+    <nav id="navbar">
+        <header>Tour of .NET</header>
+        <div id="nav-linkwrap">
+            <a href="#Programming_languages" class=nav-link>Programming languages</a>
+			<a href="#Automatic_Memory_Management" class=nav-link>Automatic memory management</a>
+			<a href="#Working_with_unmanaged_resources" class=nav-link>Working with unmanaged resources</a>
+			<a href="#Type_safety" class=nav-link>Type safety</a>
+			<a href="#Delegates_and_lambdas" class=nav-link>Delegates and lambdas</a>
+			<a href="#Generics" class=nav-link>Generics</a>
+			<a href="#Async_programming" class=nav-link>Async programming</a>
+			<a href="#Language_Integrated_Query_(LINQ)" class=nav-link>Language Integrated Query (LINQ)</a>
+			<a href="#Native_Interoperability" class=nav-link>Native Interoperability</a>
+			<a href="#Unsafe_code" class=nav-link>Unsafe code</a>
+        </div>
+    </nav>
+    <main id="main-doc">
+        <p>.NET is a general purpose development platform. It has several key features, such as support for multiple programming languages, asynchronous and concurrent programming models, and native interoperability, which enable a wide range of scenarios across multiple platforms. This article offers a guided tour through some of the key features of the .NET. See the .NET Architectural Components topic to learn about the architectural pieces of .NET and what they're used for.
+        </p>
+        <section id="Programming_languages" class="main-section">
+            <header>
+                <h2>Programming languages</h2>
+            </header>
+            <p>.NET supports multiple programming languages. The .NET implementations implement the Common Language Infrastructure (CLI), which among other things specifies a language-independent runtime and language interoperability. This means that you choose any .NET language to build apps and services on .NET.</p>
+            <p>Microsoft actively develops and supports three .NET languages: C#, F#, and Visual Basic (VB).</p>
+            <ul>
+                <li>C# is simple, powerful, type-safe, and object-oriented, while retaining the expressiveness and elegance of C-style languages. Anyone familiar with C and similar languages finds few problems in adapting to C#.</li>
+                <li>F# is a cross-platform, functional-first programming language that also supports traditional object-oriented and imperative programming.
+                </li>
+                <li>Visual Basic is an easy language to learn that you use to build a variety of apps that run on .NET. Among the .NET languages, the syntax of VB is the closest to ordinary human language, often making it easier for people new to software development.</li>
+				<li class="hidden">hidden text for user stories to fulfill</li>
+				<li class="hidden">hidden text for user stories to fulfill</li>
+            </ul>
+        </section>
+        <section id="Automatic_Memory_Management" class="main-section">
+            <header>
+                <h2>Automatic memory management</h2>
+            </header>
+            <p>.NET uses garbage collection (GC) to provide automatic memory management for programs. The GC operates on a lazy approach to memory management, preferring app throughput to the immediate collection of memory.</p>
+            <p>The following two lines both allocate memory:</p>
+            <pre><code class="prettyprint">var title = ".NET Primer";
+var list = new List&lt;string&gt;();</code>
+			</pre>
+            <p>There's no analogous keyword to de-allocate memory, as de-allocation happens automatically when the garbage collector reclaims the memory through its scheduled run.</p>
+            <p>The garbage collector is one of the services that help ensure <i>memory safety</i>. A program is memory safe if it accesses only allocated memory. For instance, the runtime ensures that an app doesn't access unallocated memory beyond the bounds of an array.</p>
+            <p>In the following example, the runtime throws an <code>InvalidIndexException</code> exception to enforce memory safety:</p>
+            <pre><code class="prettyprint lang-c">int[] numbers = new int[42];
+int number = numbers[42]; // Will throw an exception (indexes are 0-based)</code></pre>
+        </section>
+
+        <section id="Working_with_unmanaged_resources" class="main-section">
+            <header>
+                <h2>Working with <i>unmanaged resources</i></h2>
+            </header>
+            <p>Some objects reference unmanaged resources. Unmanaged resources are resources that aren't automatically maintained by the .NET runtime. For example, a file handle is an unmanaged resource. A FileStream object is a managed object, but it references a file handle, which is unmanaged. When you're done using the FileStream, you need to release the file handle.</p>
+            <p>In .NET, objects that reference unmanaged resources implement the IDisposable interface. When you're done using the object, you call the object's Dispose() method, which is responsible for releasing any unmanaged resources. .NET languages provide a convenient <code>using</code> syntax for such objects, as shown in the following example:</p>
+            <pre><code class="prettyprint lang-c">using System.IO;
+
+using (FileStream stream = GetFileStream(context))
+{
+    // Operations on the stream
+}</code></pre>
+            <p>Once the <code>using</code> block completes, the .NET runtime automatically calls the <code>stream</code> object's Dispose() method, which releases the file handle. The runtime also does this if an exception causes control to leave the block.</p>
+        </section>
+
+        <section id="Type_safety" class="main-section">
+            <header>
+                <h2>Type safety</h2>
+            </header>
+            <p>An object is an instance of a specific type. The only operations allowed for a given object are those of its type. A <code>Dog</code> type may have <code>Jump</code> and <code>WagTail</code> methods but not a <code>SumTotal</code> method. A program only calls the methods belonging to a given type. All other calls result in either a compile-time error or a run-time exception (in case of using dynamic features or <code>object</code>). .NET languages are object-oriented with hierarchies of base and derived classes. The .NET runtime only allows object casts and calls that align with the object hierarchy. Remember that every type defined in any .NET language derives from the base Object type.</p>
+            <pre><code class="prettyprint lang-c">Dog dog = AnimalShelter.AdoptDog(); // Returns a Dog type.
+Pet pet = (Pet)dog; // Dog derives from Pet.
+pet.ActCute();
+Car car = (Car)dog; // Will throw - no relationship between Car and Dog.
+object temp = (object)dog; // Legal - a Dog is an object.</code></pre>
+            <p>Type safety is also used to help enforce encapsulation by guaranteeing the fidelity of the accessor keywords. Accessor keywords are artifacts which control access to members of a given type by other code. These are usually used for various kinds of data within a type that are used to manage its behavior.</p>
+            <pre><code class="prettyprint lang-c">private Dog _nextDogToBeAdopted = AnimalShelter.AdoptDog()</code></pre>
+            <p>C#, VB, and F# support local <i>type inference</i>. Type inference means that the compiler deduces the type of the expression on the left-hand side from the expression on the right-hand side. This doesn't mean that the type safety is broken or avoided. The resulting type does have a strong type with everything that implies. From the previous example, <code>dog</code> is rewritten to introduce type inference, and the remainder of the example is unchanged:</p>
+            <pre><code class="prettyprint lang-c">var dog = AnimalShelter.AdoptDog();
+var pet = (Pet)dog;
+pet.ActCute();
+Car car = (Car)dog; // will throw - no relationship between Car and Dog
+object temp = (object)dog; // legal - a Dog is an object
+car = (Car)temp; // will throw - the runtime isn't fooled
+car.Accelerate() // the dog won't like this, nor will the program get this far</code></pre>
+        </section>
+
+        <section id="Delegates_and_lambdas" class="main-section">
+            <header>
+                <h2>Delegates and lambdas</h2>
+            </header>
+            <p>A delegate is represented by a method signature. Any method with that signature can be assigned to the delegate and is executed when the delegate is invoked.</p>
+            <p>Delegates are like C++ function pointers except that they're type safe. They're a kind of disconnected method within the CLR type system. Regular methods are attached to a class and are only directly callable through static or instance calling conventions.</p>
+            <p>In .NET, delegates are commonly used in event handlers, in defining asynchronous operations, and in lambda expressions, which are a cornerstone of LINQ.</p>
+        </section>
+
+        <section id="Generics" class="main-section">
+            <header>
+                <h2>Generics</h2>
+            </header>
+            <p>Generics allow the programmer to introduce a <i>type parameter</i> when designing their classes that allows the client code (the users of the type) to specify the exact type to use in place of the type parameter.</p>
+            <p>Generics were added to help programmers implement generic data structures. Before their arrival in order for a type such as the <code>List</code> type to be generic, it would have to work with elements that were of type <code>object</code>. This had various performance and semantic problems, along with possible subtle runtime errors. The most notorious of the latter is when a data structure contains, for instance, both integers and strings, and an <code>InvalidCastException</code> is thrown on working with the list's members.</p>
+            <p>The following sample shows a basic program running using an instance of List
+                &lt;T&gt; types:</p>
+			<pre><code class="prettyprint lang-c">using System;
+using System.Collections.Generic;
+
+namespace GenericsSampleShort
+{
+    public static void Main(string[] args)
+    {
+        // List&lt;string&gt; is the client way of specifying the actual type for the type parameter T
+        List&lt;string&gt; listOfStrings = new List&lt;string&gt; { "First", "Second", "Third" };
+
+        // listOfStrings can accept only strings, both on read and write.
+        listOfStrings.Add("Fourth");
+
+        // Below will throw a compile-time error, since the type parameter
+        // specifies this list as containing only strings.
+        listOfStrings.Add(1);
+    }
+}</code>
+			</pre>
+        </section>
+
+        <section id="Async_programming" class="main-section">
+            <header>
+                <h2>Async programming</h2>
+            </header>
+            <p>Async programming is a first-class concept within .NET with async support in the runtime, framework libraries, and .NET language constructs. Internally, they're based on objects (such as <code>Task</code>), which take advantage of the operating system to perform I/O-bound jobs as efficiently as possible.</p>
+        </section>
+
+        <section id="Language_Integrated_Query_(LINQ)" class="main-section">
+            <header>
+                <h2>Language Integrated Query (LINQ)</h2>
+            </header>
+            <p>LINQ is a powerful set of features for C# and VB that allow you to write simple, declarative code for operating on data. The data can be in many forms (such as in-memory objects, a SQL database, or an XML document), but the LINQ code you write typically doesn't differ by data source.</p>
+        </section>
+
+        <section id="Native_Interoperability" class="main-section">
+            <header>
+                <h2>Native interoperability</h2>
+            </header>
+            <p>Every operating system includes an application programming interface (API) that provides system services. .NET provides several ways to call those APIs.</p>
+            <p>The main way to do native interoperability is via "platform invoke" or P/Invoke for short, which is supported across Linux and Windows platforms. A Windows-only way of doing native interoperability is known as "COM interop," which is used to work with COM components in managed code. It's built on top of the P/Invoke infrastructure, but it works in subtly different ways.</p>
+            <p>Most of Mono's (and thus Xamarin's) interoperability support for Java and Objective-C are built similarly, that is, they use the same principles.</p>
+        </section>
+
+        <section id="Unsafe_code" class="main-section">
+            <header>
+                <h2>Unsafe code</h2>
+            </header>
+            <p>Depending on language support, the CLR lets you access native memory and do pointer arithmetic via <code>unsafe</code> code. These operations are needed for certain algorithms and system interoperability. Although powerful, use of unsafe code is discouraged unless it's necessary to interop with system APIs or implement the most efficient algorithm. Unsafe code may not execute the same way in different environments and also loses the benefits of a garbage collector and type safety. It's recommended to confine and centralize unsafe code as much as possible and test that code thoroughly.</p>
+            <p>The following example is a modified version of the <code>ToString()</code> method from the <code>StringBuilder</code> class. It illustrates how using <code>unsafe</code> code can efficiently implement an algorithm by moving around chunks of memory directly:</p>
+            <pre><code class="prettyprint lang-c">public override String ToString()
+{
+    if (Length == 0)
+        return String.Empty;
+
+    string ret = string.FastAllocateString(Length);
+    StringBuilder chunk = this;
+    unsafe
+    {
+        fixed (char* destinationPtr = ret)
+        {
+            do
+            {
+                if (chunk.m_ChunkLength > 0)
+                {
+                    // Copy these into local variables so that they are stable even in the presence of ----s (hackers might do this)
+                    char[] sourceArray = chunk.m_ChunkChars;
+                    int chunkOffset = chunk.m_ChunkOffset;
+                    int chunkLength = chunk.m_ChunkLength;
+
+                    // Check that we will not overrun our boundaries.
+                    if ((uint)(chunkLength + chunkOffset) &lt;= ret.Length && (uint)chunkLength &lt;= (uint)sourceArray.Length)
+                    {
+                        fixed (char* sourcePtr = sourceArray)
+                            string.wstrcpy(destinationPtr + chunkOffset, sourcePtr, chunkLength);
+                    }
+                    else
+                    {
+                        throw new ArgumentOutOfRangeException("chunkLength", Environment.GetResourceString("ArgumentOutOfRange_Index"));
+                    }
+                }
+                chunk = chunk.m_ChunkPrevious;
+            } while (chunk != null);
+        }
+    }
+    return ret;
+}</code>
+			</pre>
+        </section>
+		<p>This page was made as an HTML and CSS learning project for freeCodeCamp. All information gathered from Microsoft's <a href="https://docs.microsoft.com/en-us/dotnet/standard/tour">Tour of .NET</a></p> 
+    </main>
+	
+	<script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</body>
+
