@@ -3,3 +3,5 @@ Technical documentation page for .NET. Developed to learn HTML and CSS within th
 
 
 All text gathered from https://docs.microsoft.com/en-us/dotnet/standard/tour
+
+View page https://linardsblk.github.io/fcc-tech-doc/
